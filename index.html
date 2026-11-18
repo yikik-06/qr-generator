@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modern QR Code Generator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
+.buy-btn{background:linear-gradient(135deg,#7c3aed,#4f46e5,#2563eb);background-size:200% 200%;animation:shift 5s ease infinite,glowP 2.4s ease-in-out infinite;transition:transform .2s}
+.buy-btn:hover{transform:translateY(-2px) scale(1.03)}
+@keyframes shift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes glowP{0%,100%{box-shadow:0 0 14px rgba(124,58,237,.55),0 0 32px rgba(37,99,235,.35)}50%{box-shadow:0 0 24px rgba(124,58,237,.85),0 0 54px rgba(37,99,235,.6)}}
+.pick{appearance:none;-webkit-appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center;cursor:pointer}
+.sw{transition:transform .15s,box-shadow .15s}.sw:hover{transform:scale(1.12)}
+.sw[aria-pressed=true]{box-shadow:0 0 0 3px #fff,0 0 0 5px #7c3aed}
+#qr{image-rendering:pixelated}
+@media (prefers-reduced-motion:reduce){.buy-btn{animation:none;box-shadow:0 0 20px rgba(124,58,237,.6)}}
+</style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-violet-50 via-sky-50 to-fuchsia-50 text-slate-800">
+
+<div dir="ltr" class="flex w-full justify-end px-4 pt-4">
+  <label class="flex items-center gap-1.5"><span aria-hidden="true">🌐</span>
+    <select id="langSel" class="pick rounded-full border border-slate-200 py-2 pl-4 pr-9 text-sm font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500">
+      <option value="en">English</option><option value="tr">Türkçe</option><option value="es">Español</option>
+      <option value="de">Deutsch</option><option value="fr">Français</option><option value="ar">العربية</option>
+      <option value="ru">Русский</option><option value="zh">中文</option><option value="ja">日本語</option>
+      <option value="pt">Português</option><option value="it">Italiano</option><option value="hi">हिन्दी</option>
+      <option value="ko">한국어</option><option value="nl">Nederlands</option><option value="pl">Polski</option>
+    </select>
+  </label>
+</div>
+
+<div class="flex w-full justify-center px-4 pt-5">
+  <a href="https://gumroad.com" target="_blank" rel="noopener noreferrer" class="buy-btn inline-block rounded-full px-8 py-4 text-center text-base font-extrabold text-white sm:text-lg">🚀 Buy via Gumroad ($2)</a>
+</div>
+
+<main class="mx-auto max-w-5xl px-4 py-10">
+  <h1 data-t="0" class="text-center text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl"></h1>
+  <p data-t="1" class="mt-2 text-center text-slate-500"></p>
+
+  <div class="mt-8 grid gap-6 md:grid-cols-5">
+    <!-- Girdi alanı -->
+    <section class="space-y-5 rounded-3xl bg-white p-6 shadow-lg md:col-span-3">
+      <div class="grid grid-cols-2 gap-1 rounded-2xl bg-slate-100 p-1" role="tablist">
+        <button id="tabText" type="button" class="rounded-xl px-4 py-2 text-sm font-bold transition">🔗 <span data-t="2"></span></button>
+        <button id="tabWifi" type="button" class="rounded-xl px-4 py-2 text-sm font-bold transition">📶 <span data-t="3"></span></button>
+      </div>
+
+      <div id="paneText">
+        <label data-t="4" for="txt" class="text-sm font-semibold"></label>
+        <textarea id="txt" rows="3" dir="auto" class="mt-2 w-full resize-none rounded-2xl border-2 border-slate-200 px-4 py-3 text-lg focus:border-violet-500 focus:outline-none"></textarea>
+      </div>
+
+      <div id="paneWifi" class="hidden space-y-3">
+        <div><label data-t="6" for="ssid" class="text-sm font-semibold"></label>
+          <input id="ssid" type="text" dir="auto" autocomplete="off" class="mt-1 w-full rounded-2xl border-2 border-slate-200 px-4 py-3 text-lg focus:border-violet-500 focus:outline-none"></div>
+        <div id="passBox"><label data-t="7" for="pass" class="text-sm font-semibold"></label>
+          <input id="pass" type="text" dir="auto" autocomplete="off" class="mt-1 w-full rounded-2xl border-2 border-slate-200 px-4 py-3 text-lg focus:border-violet-500 focus:outline-none"></div>
+        <div><label data-t="8" for="sec" class="text-sm font-semibold"></label>
+          <select id="sec" class="pick mt-1 w-full rounded-2xl border-2 border-slate-200 px-4 py-3 text-lg focus:border-violet-500 focus:outline-none">
+            <option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="nopass" id="optNo"></option>
+          </select></div>
+      </div>
+
+      <div>
+        <p data-t="10" class="text-sm font-semibold"></p>
+        <div id="fgSw" class="mt-2 flex flex-wrap items-center gap-3"></div>
+      </div>
+      <div>
+        <p data-t="11" class="text-sm font-semibold"></p>
+        <div id="bgSw" class="mt-2 flex flex-wrap items-center gap-3"></div>
+      </div>
+    </section>
+
+    <!-- Önizleme -->
+    <section class="flex flex-col items-center rounded-3xl bg-white p-6 shadow-lg md:col-span-2">
+      <div class="flex w-full flex-1 items-center justify-center">
+        <canvas id="qr" class="hidden w-full max-w-[320px] rounded-2xl shadow-md ring-1 ring-slate-100"></canvas>
+        <div id="empty" class="flex aspect-square w-full max-w-[320px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 p-6 text-center text-slate-400">
+          <span class="text-6xl" aria-hidden="true">🔳</span><p data-t="13" class="mt-3 text-sm font-medium"></p>
+        </div>
+      </div>
+      <p id="err" data-t="14" class="mt-3 hidden text-center text-sm font-semibold text-red-600"></p>
+      <button id="dl" type="button" disabled class="mt-5 w-full rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-4 text-lg font-bold text-white shadow-lg transition enabled:hover:scale-[1.02] enabled:active:scale-95 disabled:cursor-not-allowed disabled:opacity-40">⬇️ <span data-t="12"></span></button>
+    </section>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+// Sıra: başlık, alt başlık, sekme metin, sekme wifi, metin etiketi, placeholder, SSID, şifre, güvenlik, şifresiz, QR rengi, arka plan rengi, indir, boş, çok uzun, dil
+const T = {
+en:['Modern QR Code Generator','Type a link, text or Wi-Fi details — your QR code appears instantly.','Link / Text','Wi-Fi','Your link or text','https://example.com or any text','Network name (SSID)','Password','Security','No password','QR color','Background color','Download PNG','Your QR code will appear here','Too much text for a QR code. Please shorten it.','Language'],
+tr:['Modern QR Kod Oluşturucu','Bir link, metin veya Wi-Fi bilgisi yaz; QR kodun anında belirsin.','Link / Metin','Wi-Fi','Linkin veya metnin','https://ornek.com veya herhangi bir metin','Ağ adı (SSID)','Şifre','Güvenlik','Şifresiz','QR rengi','Arka plan rengi','PNG İndir','QR kodun burada görünecek','Metin bir QR kod için çok uzun. Lütfen kısalt.','Dil'],
+es:['Generador de códigos QR moderno','Escribe un enlace, texto o datos de Wi-Fi y tu código QR aparece al instante.','Enlace / Texto','Wi-Fi','Tu enlace o texto','https://ejemplo.com o cualquier texto','Nombre de red (SSID)','Contraseña','Seguridad','Sin contraseña','Color del QR','Color de fondo','Descargar PNG','Tu código QR aparecerá aquí','Demasiado texto para un código QR. Acórtalo.','Idioma'],
+de:['Moderner QR-Code-Generator','Gib einen Link, Text oder WLAN-Daten ein – dein QR-Code erscheint sofort.','Link / Text','WLAN','Dein Link oder Text','https://beispiel.de oder beliebiger Text','Netzwerkname (SSID)','Passwort','Sicherheit','Kein Passwort','QR-Farbe','Hintergrundfarbe','PNG herunterladen','Dein QR-Code erscheint hier','Zu viel Text für einen QR-Code. Bitte kürzen.','Sprache'],
+fr:['Générateur de QR code moderne','Saisissez un lien, un texte ou des infos Wi-Fi : votre QR code apparaît instantanément.','Lien / Texte','Wi-Fi','Votre lien ou texte','https://exemple.fr ou tout autre texte','Nom du réseau (SSID)','Mot de passe','Sécurité','Sans mot de passe','Couleur du QR','Couleur de fond','Télécharger le PNG','Votre QR code apparaîtra ici','Trop de texte pour un QR code. Veuillez raccourcir.','Langue'],
+ar:['مولّد رموز QR عصري','اكتب رابطاً أو نصاً أو بيانات Wi-Fi وسيظهر رمز QR فوراً.','رابط / نص','Wi-Fi','رابطك أو نصك','https://example.com أو أي نص','اسم الشبكة (SSID)','كلمة المرور','الأمان','بدون كلمة مرور','لون QR','لون الخلفية','تنزيل PNG','سيظهر رمز QR هنا','النص طويل جداً لرمز QR. يرجى اختصاره.','اللغة'],
+ru:['Современный генератор QR-кодов','Введите ссылку, текст или данные Wi-Fi — QR-код появится мгновенно.','Ссылка / Текст','Wi-Fi','Ваша ссылка или текст','https://example.com или любой текст','Имя сети (SSID)','Пароль','Защита','Без пароля','Цвет QR','Цвет фона','Скачать PNG','Здесь появится ваш QR-код','Слишком много текста для QR-кода. Сократите его.','Язык'],
+zh:['现代二维码生成器','输入链接、文字或 Wi-Fi 信息，二维码即时生成。','链接 / 文字','Wi-Fi','你的链接或文字','https://example.com 或任意文字','网络名称 (SSID)','密码','加密方式','无密码','二维码颜色','背景颜色','下载 PNG','二维码将显示在这里','文字过长，无法生成二维码，请缩短。','语言'],
+ja:['モダンQRコード作成ツール','リンク、テキスト、Wi-Fi情報を入力すると、すぐにQRコードが表示されます。','リンク / テキスト','Wi-Fi','リンクまたはテキスト','https://example.com または任意のテキスト','ネットワーク名 (SSID)','パスワード','セキュリティ','パスワードなし','QRの色','背景色','PNGをダウンロード','ここにQRコードが表示されます','QRコードには長すぎます。短くしてください。','言語'],
+pt:['Gerador de QR Code moderno','Digite um link, texto ou dados de Wi-Fi e seu QR Code aparece na hora.','Link / Texto','Wi-Fi','Seu link ou texto','https://exemplo.com ou qualquer texto','Nome da rede (SSID)','Senha','Segurança','Sem senha','Cor do QR','Cor de fundo','Baixar PNG','Seu QR Code aparecerá aqui','Texto longo demais para um QR Code. Encurte-o.','Idioma'],
+it:['Generatore di codici QR moderno','Scrivi un link, un testo o i dati Wi-Fi e il tuo codice QR appare subito.','Link / Testo','Wi-Fi','Il tuo link o testo','https://esempio.it o qualsiasi testo','Nome della rete (SSID)','Password','Sicurezza','Senza password','Colore del QR','Colore di sfondo','Scarica PNG','Il tuo codice QR apparirà qui','Troppo testo per un codice QR. Accorcialo.','Lingua'],
+hi:['आधुनिक QR कोड जनरेटर','लिंक, टेक्स्ट या Wi-Fi की जानकारी लिखें, QR कोड तुरंत बन जाएगा।','लिंक / टेक्स्ट','Wi-Fi','आपका लिंक या टेक्स्ट','https://example.com या कोई भी टेक्स्ट','नेटवर्क नाम (SSID)','पासवर्ड','सुरक्षा','बिना पासवर्ड','QR का रंग','पृष्ठभूमि का रंग','PNG डाउनलोड करें','आपका QR कोड यहाँ दिखेगा','QR कोड के लिए टेक्स्ट बहुत लंबा है। कृपया छोटा करें।','भाषा'],
+ko:['모던 QR 코드 생성기','링크, 텍스트 또는 Wi-Fi 정보를 입력하면 QR 코드가 바로 만들어집니다.','링크 / 텍스트','Wi-Fi','링크 또는 텍스트','https://example.com 또는 아무 텍스트','네트워크 이름 (SSID)','비밀번호','보안','비밀번호 없음','QR 색상','배경 색상','PNG 다운로드','여기에 QR 코드가 표시됩니다','QR 코드에 넣기엔 텍스트가 너무 깁니다. 줄여 주세요.','언어'],
+nl:['Moderne QR-codegenerator','Typ een link, tekst of wifi-gegevens en je QR-code verschijnt direct.','Link / Tekst','Wifi','Je link of tekst','https://voorbeeld.nl of een andere tekst','Netwerknaam (SSID)','Wachtwoord','Beveiliging','Geen wachtwoord','QR-kleur','Achtergrondkleur','PNG downloaden','Je QR-code verschijnt hier','Te veel tekst voor een QR-code. Maak het korter.','Taal'],
+pl:['Nowoczesny generator kodów QR','Wpisz link, tekst lub dane Wi-Fi, a kod QR pojawi się natychmiast.','Link / Tekst','Wi-Fi','Twój link lub tekst','https://przyklad.pl lub dowolny tekst','Nazwa sieci (SSID)','Hasło','Zabezpieczenia','Bez hasła','Kolor kodu QR','Kolor tła','Pobierz PNG','Tutaj pojawi się Twój kod QR','Za dużo tekstu jak na kod QR. Skróć go.','Język']
+};
+const FG = ['#000000','#1e3a8a','#7c3aed','#166534','#b91c1c','#0f766e'];
+const BG = ['#ffffff','#fef3c7','#e0f2fe','#fce7f3','#dcfce7','#f1f5f9'];
+const S = {lang:'en', mode:'text', fg:'#000000', bg:'#ffffff'};
+const t = i => T[S.lang][i];
+
+function detect() {
+  const list = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'en'];
+  for (const l of list) { const c = String(l).toLowerCase().split('-')[0]; if (T[c]) return c; }
+  return 'en';
+}
+let savedLang = null;
+try { savedLang = localStorage.getItem('qrGenLang'); } catch (e) {}
+S.lang = savedLang && T[savedLang] ? savedLang : detect();
+
+// Renk seçiciler
+function swatches(box, list, key) {
+  box.innerHTML = list.map(c => `<button type="button" class="sw h-9 w-9 rounded-full border border-slate-300" style="background:${c}" data-c="${c}" aria-label="${c}" aria-pressed="${S[key] === c}"></button>`).join('') +
+    `<label class="sw relative flex h-9 w-9 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-slate-400 text-lg text-slate-500" aria-pressed="false">＋<input type="color" value="${S[key]}" class="absolute inset-0 h-full w-full cursor-pointer opacity-0"></label>`;
+  box.onclick = e => { const b = e.target.closest('button[data-c]'); if (b) { S[key] = b.dataset.c; swatches(box, list, key); draw(); } };
+  box.querySelector('input').oninput = e => { S[key] = e.target.value; box.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.c === S[key])); draw(); };
+}
+
+// Sekmeler
+function setMode(m) {
+  S.mode = m;
+  $('paneText').classList.toggle('hidden', m !== 'text');
+  $('paneWifi').classList.toggle('hidden', m !== 'wifi');
+  [['tabText','text'],['tabWifi','wifi']].forEach(([id, k]) => {
+    $(id).className = 'rounded-xl px-4 py-2 text-sm font-bold transition ' + (m === k ? 'bg-white text-violet-700 shadow' : 'text-slate-500');
+  });
+  draw();
+}
+const esc = s => s.replace(/([\\;,:"])/g, '\\$1');
+
+function payload() {
+  if (S.mode === 'text') return $('txt').value.trim();
+  const ssid = $('ssid').value.trim(); if (!ssid) return '';
+  const sec = $('sec').value;
+  return sec === 'nopass' ? `WIFI:T:nopass;S:${esc(ssid)};;` : `WIFI:T:${sec};S:${esc(ssid)};P:${esc($('pass').value)};;`;
+}
+
+function draw() {
+  $('passBox').classList.toggle('hidden', $('sec').value === 'nopass');
+  const data = payload(), cv = $('qr');
+  $('err').classList.add('hidden');
+  const show = ok => { cv.classList.toggle('hidden', !ok); $('empty').classList.toggle('hidden', ok); $('dl').disabled = !ok; };
+  if (!data || typeof qrcode === 'undefined') return show(false);
+  try {
+    const qr = qrcode(0, 'M');
+    qr.addData(unescape(encodeURIComponent(data)));   // UTF-8 baytları (Türkçe, Arapça, emoji vb. için)
+    qr.make();
+    const n = qr.getModuleCount(), cell = Math.max(4, Math.floor(1024 / (n + 8))), size = cell * (n + 8);
+    cv.width = cv.height = size;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = S.bg; ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = S.fg;
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) ctx.fillRect((c + 4) * cell, (r + 4) * cell, cell, cell);
+    show(true);
+  } catch (e) { show(false); $('err').classList.remove('hidden'); }
+}
+
+$('dl').addEventListener('click', () => {
+  $('qr').toBlob(b => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(b); a.download = 'qr-code.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }, 'image/png');
+});
+
+['txt','ssid','pass'].forEach(id => $(id).addEventListener('input', draw));
+$('sec').addEventListener('change', draw);
+$('tabText').addEventListener('click', () => setMode('text'));
+$('tabWifi').addEventListener('click', () => setMode('wifi'));
+
+function apply() {
+  document.documentElement.lang = S.lang;
+  document.documentElement.dir = S.lang === 'ar' ? 'rtl' : 'ltr';
+  document.title = t(0);
+  document.querySelectorAll('[data-t]').forEach(el => el.textContent = t(+el.dataset.t));
+  $('txt').placeholder = t(5);
+  $('optNo').textContent = t(9);
+  $('langSel').setAttribute('aria-label', t(15)); $('langSel').title = t(15);
+}
+$('langSel').addEventListener('change', e => {
+  S.lang = e.target.value; apply();
+  try { localStorage.setItem('qrGenLang', S.lang); } catch (err) {}
+});
+
+$('langSel').value = S.lang;
+swatches($('fgSw'), FG, 'fg');
+swatches($('bgSw'), BG, 'bg');
+apply();
+setMode('text');
+</script>
+</body>
+</html>
